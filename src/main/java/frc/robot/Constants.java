@@ -25,30 +25,32 @@ public final class Constants {
     public static class mod0 {
       public static final int drive_id = 54;
       public static final int turn_id = 58;
-      public static final int can_coder = 54;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(0);
+      public static final int can_coder = 8;
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(339.3);
     }
     public static class mod1 {
-      public static final int drive_id = 54;
-      public static final int turn_id = 58;
-      public static final int can_coder = 54;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(0);
+      public static final int drive_id = 36;
+      public static final int turn_id = 52;
+      public static final int can_coder = 1;
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(187.3);
     }
     public static class mod2 {
-      public static final int drive_id = 54;
-      public static final int turn_id = 58;
-      public static final int can_coder = 54;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(0);
+      public static final int drive_id = 53;
+      public static final int turn_id = 61;
+      public static final int can_coder = 2;
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(166.1);
     }
     public static class mod3 {
-      public static final int drive_id = 54;
-      public static final int turn_id = 58;
-      public static final int can_coder = 54;
-      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(0);
+      public static final int drive_id = 55;
+      public static final int turn_id = 59;
+      public static final int can_coder = 3;
+      public static final Rotation2d turn_offset = Rotation2d.fromDegrees(148.2);
     }
+
+    public static final double drive_motor_ratio = 6.12;
     public static final double turn_motor_ratio = 150 / 7;
-    public static final double drive_position_conversion_factor = 0;
-    public static final double drive_velocity_conversion_factor = 0;
+    public static final double drive_position_conversion_factor = Math.PI * drive_motor_ratio * 9.5;
+    public static final double drive_velocity_conversion_factor = drive_position_conversion_factor / 60;
     public static final double turn_position_conversion_factor = 360 / turn_motor_ratio;
 
     //lengths in nches to meters
@@ -57,8 +59,8 @@ public final class Constants {
 
     public static final double turn_kp = 0.00759;
     public static final double turn_ki = 0.00069;
-    public static final double turn_kd = 0.0001; 
-    public static final double drive_kp = 0;
+    public static final double turn_kd = 0.0001;
+    public static final double drive_kp = 0.02;
     public static final double drive_ki = 0;
     public static final double drive_kd = 0;
 

@@ -45,7 +45,7 @@ public class Drive extends Command {
     //the deadband makes it so if joystick is between -0.1 and 0.1 it will just return 0
     x = x_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getX(), 0.1));
     y = y_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getY(), 0.1));
-    //turns the rotation from a magniture of 0 to 1 to be in correct speed range because of the multiplication
+    //turns the rotation from a magnitude of 0 to 1 to be in correct speed range using the multiplication
     rotation = rotation_limiter.calculate(MathUtil.applyDeadband(this.joystick_r.getX(), 0.1)) * Constants.dt.max_angular_speed;
     //gets robot translation and rotation from joysticks
     //.times multiplies the translation which has a magnitude between 0 and 1 inclusive by the max speed of the robot
