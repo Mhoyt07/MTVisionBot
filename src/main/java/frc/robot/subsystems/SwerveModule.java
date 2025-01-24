@@ -147,13 +147,9 @@ public class SwerveModule {
     //sets the swerve modules into their desired states using speed and angles
     public void set_desired_state(SwerveModuleState desired_state) {
         current_state = this.get_state();
-<<<<<<< HEAD
         //current_rotation = current_state.angle.minus(this.turn_offset);
         current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
         SmartDashboard.putNumber("Current Rotation", current_rotation.getDegrees());
-=======
-        current_rotation = current_state.angle.minus(this.turn_offset); 
->>>>>>> 12a6b73 (updates constats)
         
         //optimize the angle used in desired state to make sure itdoes not spin more than 90 degrees
         desired_state.optimize(current_rotation);
