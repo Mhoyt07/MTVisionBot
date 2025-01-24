@@ -4,6 +4,9 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoder;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.ctre.phoenix6.configs.MagnetSensorConfigs;
@@ -15,10 +18,12 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
 
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -34,10 +39,12 @@ public class SwerveModule {
     private final SparkMaxConfig turn_config;
     private final RelativeEncoder drive_encoder;
     private final RelativeEncoder turn_encoder;
-    private final CANcoder best_turn_encoder;
-    private final MagnetSensorConfigs magnet_sensor_config;
+    private final CANCoder best_turn_encoder;
+    private  AbsoluteSensorRange range;
+    //private final MagnetSensorConfigs magnet_sensor_config;
     private SwerveModuleState current_state;
     private Rotation2d current_rotation;
+    private Rotation2d desired_rotation;
     private PIDController drive_pid;
     private PIDController turn_pid;
     private double turn_speed;
@@ -48,11 +55,21 @@ public class SwerveModule {
         this.module_order = module_order;
         this.turn_offset = turn_offset;
 
-        //can coder stuff
-        this.best_turn_encoder = new CANcoder(can_coder_id);
+
+        //cancoder old firmware
+        this.best_turn_encoder = new CANCoder(can_coder_id);
+
+        range = AbsoluteSensorRange.Signed_PlusMinus180;
+        this.best_turn_encoder.configAbsoluteSensorRange(range);
+
+
+
+
+        //can coder stuff new firmware
+        //this.best_turn_encoder = new CANcoder(can_coder_id);
         //can coder magnet sensor conifg
-        this.magnet_sensor_config = new MagnetSensorConfigs().withAbsoluteSensorDiscontinuityPoint(1);
-        this.best_turn_encoder.getConfigurator().apply(this.magnet_sensor_config);
+        //this.magnet_sensor_config = new MagnetSensorConfigs().withAbsoluteSensorDiscontinuityPoint(0.5);
+        //this.best_turn_encoder.getConfigurator().apply(this.magnet_sensor_config);
         
         //drive motor stuff
         //drive motor controller
@@ -101,8 +118,10 @@ public class SwerveModule {
         //configures turn motor controller with turn config data
         this.turn_motor.configure(this.turn_config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        //drive pid controller
-        this.drive_pid = new PIDController(Constants.dt.turn_kp, Constants.dt.turn_ki, Constants.dt.turn_kd);
+        //turn pid controller
+        this.turn_pid = new PIDController(Constants.dt.turn_kp, Constants.dt.turn_ki, Constants.dt.turn_kd);
+        //makes it so pid is continuous
+        this.turn_pid.enableContinuousInput(-180, 180);
     }
 
     //resets turn encoders to cancoder offsets
@@ -112,11 +131,11 @@ public class SwerveModule {
 
     //returns can coder value
     public Rotation2d get_can_coder() {
-        return new Rotation2d(this.best_turn_encoder.getAbsolutePosition().getValue());
+        return new Rotation2d(this.best_turn_encoder.getAbsolutePosition());
     }
 
     //returns the current state of the module
-    public SwerveModuleState getState() {
+    public SwerveModuleState get_state() {
         return new SwerveModuleState( this.drive_encoder.getVelocity(), get_can_coder());
     }
 
@@ -127,20 +146,25 @@ public class SwerveModule {
 
     //sets the swerve modules into their desired states using speed and angles
     public void set_desired_state(SwerveModuleState desired_state) {
-        current_state = this.getState();
-        current_rotation = current_state.angle.minus(this.turn_offset); 
+        current_state = this.get_state();
+        //current_rotation = current_state.angle.minus(this.turn_offset);
+        current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
+        SmartDashboard.putNumber("Current Rotation", current_rotation.getDegrees());
         
         //optimize the angle used in desired state to make sure it does not spin more than 90 degrees
         desired_state.optimize(current_rotation);
 
         //scale speed by cosine of angle error, which scales down movemment perpendicular to desired direction of travel which happens when modules change directions
-        desired_state.cosineScale(current_rotation);
+        //desired_state.cosineScale(current_rotation);
 
-        turn_speed = this.turn_pid.calculate(current_state.angle.getDegrees(), desired_state.angle.getDegrees());
+        desired_rotation = desired_state.angle.plus(new Rotation2d());
+        SmartDashboard.putNumber("Desired Rotation", desired_rotation.getDegrees());
+
+        turn_speed = this.turn_pid.calculate(current_rotation.getDegrees(), desired_rotation.getDegrees());
 
         drive_speed = this.drive_pid.calculate(drive_encoder.getVelocity(), desired_state.speedMetersPerSecond);
 
-        this.turn_motor.set(turn_speed);
+        this.turn_motor.set(MathUtil.applyDeadband(turn_speed, 1));
         this.drive_motor.set(drive_speed);
     }
 }

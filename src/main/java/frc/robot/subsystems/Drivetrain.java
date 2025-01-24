@@ -22,6 +22,7 @@ public class Drivetrain extends SubsystemBase {
     gyro = new PigeonIMU(0);
     gyro.configFactoryDefault();
     set_gyro(0);
+    reset_encoders();
 
     this.dt = new SwerveModule[] {
       new SwerveModule(3, 0, Constants.dt.mod3.drive_id, Constants.dt.mod3.turn_id, Constants.dt.mod3.can_coder, Constants.dt.mod3.turn_offset),
@@ -33,7 +34,6 @@ public class Drivetrain extends SubsystemBase {
 
   public void set_gyro(double yaw) {
     gyro.setYaw(yaw);
-    reset_encoders();
   }
 
   //resets the encoders of each module to the cancoder offset
