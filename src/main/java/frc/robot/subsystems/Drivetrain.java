@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
@@ -19,10 +20,9 @@ public class Drivetrain extends SubsystemBase {
   PigeonIMU gyro;
   private final SwerveModule[] dt;
   public Drivetrain() {
-    gyro = new PigeonIMU(0);
+    gyro = new PigeonIMU(10);
     gyro.configFactoryDefault();
     set_gyro(0);
-    reset_encoders();
 
     this.dt = new SwerveModule[] {
       new SwerveModule(3, 0, Constants.dt.mod3.drive_id, Constants.dt.mod3.turn_id, Constants.dt.mod3.can_coder, Constants.dt.mod3.turn_offset),
@@ -30,6 +30,7 @@ public class Drivetrain extends SubsystemBase {
       new SwerveModule(2, 2, Constants.dt.mod2.drive_id, Constants.dt.mod2.turn_id, Constants.dt.mod2.can_coder, Constants.dt.mod2.turn_offset),
       new SwerveModule(1, 3, Constants.dt.mod1.drive_id, Constants.dt.mod1.turn_id, Constants.dt.mod1.can_coder, Constants.dt.mod1.turn_offset)
     };
+    reset_encoders();
   }
 
   public void set_gyro(double yaw) {
@@ -45,6 +46,7 @@ public class Drivetrain extends SubsystemBase {
 
   //returns the yaw of robot
   public Rotation2d get_yaw() {
+    SmartDashboard.putNumber("Get Yaw", gyro.getYaw());
     return Rotation2d.fromDegrees(gyro.getYaw());
   }
 
@@ -63,6 +65,10 @@ public class Drivetrain extends SubsystemBase {
     for (SwerveModule module: this.dt) {
       module.set_desired_state(swerve_module_states[module.module_order]);
     }
+    //puts translation and rotation values on smart dashboard
+    SmartDashboard.putNumber("Translation x", translation.getX());
+    SmartDashboard.putNumber("Translation y", translation.getY());
+    SmartDashboard.putNumber("Rotation", rotation);
   }
 
   @Override

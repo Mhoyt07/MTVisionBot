@@ -6,11 +6,6 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoder;
-import com.ctre.phoenix.sensors.CANCoderConfiguration;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
-import com.ctre.phoenix6.configs.CANcoderConfigurator;
-import com.ctre.phoenix6.configs.MagnetSensorConfigs;
-import com.ctre.phoenix6.hardware.CANcoder;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -121,7 +116,7 @@ public class SwerveModule {
         //turn pid controller
         this.turn_pid = new PIDController(Constants.dt.turn_kp, Constants.dt.turn_ki, Constants.dt.turn_kd);
         //makes it so pid is continuous
-        this.turn_pid.enableContinuousInput(-180, 180);
+        //this.turn_pid.enableContinuousInput(-180, 180);
     }
 
     //resets turn encoders to cancoder offsets
@@ -131,7 +126,7 @@ public class SwerveModule {
 
     //returns can coder value
     public Rotation2d get_can_coder() {
-        return new Rotation2d(this.best_turn_encoder.getAbsolutePosition());
+        return Rotation2d.fromDegrees(this.best_turn_encoder.getAbsolutePosition());
     }
 
     //returns the current state of the module
@@ -149,23 +144,30 @@ public class SwerveModule {
         current_state = this.get_state();
         //current_rotation = current_state.angle.minus(this.turn_offset);
         current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
-        SmartDashboard.putNumber("Current Rotation", current_rotation.getDegrees());
+        SmartDashboard.putNumber("Current Rotation" + this.module_number, current_rotation.getDegrees());
         
         //optimize the angle used in desired state to make sure itdoes not spin more than 90 degrees
         desired_state.optimize(current_rotation);
 
         //scale speed by cosine of angle error, which scales down movemment perpendicular to desired direction of travel which happens when modules change directions
-        //desired_state.cosineScale(current_rotation);
+        desired_state.cosineScale(current_rotation);
 
         desired_rotation = desired_state.angle.plus(new Rotation2d());
-        SmartDashboard.putNumber("Desired Rotation", desired_rotation.getDegrees());
+        SmartDashboard.putNumber("Desired Rotation" + this.module_number, desired_rotation.getDegrees());
 
-        turn_speed = this.turn_pid.calculate(current_rotation.getDegrees(), desired_rotation.getDegrees());
+        double diff = desired_rotation.getDegrees() - current_rotation.getDegrees();
+        SmartDashboard.putNumber("Diff" + this.module_number, diff);
+        if (Math.abs(diff) < 1) {
+            turn_speed = 0;
+        } else {
+            turn_speed = this.turn_pid.calculate(diff, 0);
+        }
 
         //drive_speed = this.drive_pid.calculate(drive_encoder.getVelocity(), desired_state.speedMetersPerSecond);
         drive_speed = desired_state.speedMetersPerSecond / Constants.dt.max_speed;
 
-        this.turn_motor.set(MathUtil.applyDeadband(turn_speed, 1));
+        this.turn_motor.set(turn_speed);
+        SmartDashboard.putNumber("Turn Speed" + this.module_number, turn_speed);
         this.drive_motor.set(drive_speed);
     }
 }

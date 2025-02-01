@@ -57,9 +57,9 @@ public final class Constants {
     public static final double robot_length = Units.inchesToMeters(25);
     public static final double robot_width = Units.inchesToMeters(25);
 
-    public static final double turn_kp = 0.00759;
-    public static final double turn_ki = 0.00069;
-    public static final double turn_kd = 0.0001;
+    public static final double turn_kp = 0.00759; //0.00759;
+    public static final double turn_ki = 0.00059; //0.00069;
+    public static final double turn_kd = 0.0001;  //0.0001;
     public static final double drive_kp = 0.02;
     public static final double drive_ki = 0;
     public static final double drive_kd = 0;
