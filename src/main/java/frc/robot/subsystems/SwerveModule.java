@@ -80,7 +80,7 @@ public class SwerveModule {
             .smartCurrentLimit(50)
             .voltageCompensation(12);
         this.drive_config.encoder
-            .positionConversionFactor(Constants.dt.drive_position_conversion_factor)
+            .positionConversionFactor(Constants.dt.drive_position_conversion_factor * 100)
             .velocityConversionFactor(Constants.dt.drive_velocity_conversion_factor);
 
         //configures motor controller with config data
@@ -115,8 +115,6 @@ public class SwerveModule {
 
         //turn pid controller
         this.turn_pid = new PIDController(Constants.dt.turn_kp, Constants.dt.turn_ki, Constants.dt.turn_kd);
-        //makes it so pid is continuous
-        //this.turn_pid.enableContinuousInput(-180, 180);
     }
 
     //resets turn encoders to cancoder offsets
@@ -142,9 +140,7 @@ public class SwerveModule {
     //sets the swerve modules into their desired states using speed and angles
     public void set_desired_state(SwerveModuleState desired_state) {
         current_state = this.get_state();
-        //current_rotation = current_state.angle.minus(this.turn_offset);
         current_rotation = current_state.angle.minus(this.turn_offset).plus(new Rotation2d());
-        SmartDashboard.putNumber("Current Rotation" + this.module_number, current_rotation.getDegrees());
         
         //optimize the angle used in desired state to make sure itdoes not spin more than 90 degrees
         desired_state.optimize(current_rotation);
@@ -153,10 +149,9 @@ public class SwerveModule {
         desired_state.cosineScale(current_rotation);
 
         desired_rotation = desired_state.angle.plus(new Rotation2d());
-        SmartDashboard.putNumber("Desired Rotation" + this.module_number, desired_rotation.getDegrees());
 
         double diff = desired_rotation.getDegrees() - current_rotation.getDegrees();
-        SmartDashboard.putNumber("Diff" + this.module_number, diff);
+        
         if (Math.abs(diff) < 1) {
             turn_speed = 0;
         } else {
@@ -167,7 +162,6 @@ public class SwerveModule {
         drive_speed = desired_state.speedMetersPerSecond / Constants.dt.max_speed;
 
         this.turn_motor.set(turn_speed);
-        SmartDashboard.putNumber("Turn Speed" + this.module_number, turn_speed);
         this.drive_motor.set(drive_speed);
     }
 }

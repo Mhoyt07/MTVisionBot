@@ -6,11 +6,15 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
@@ -19,6 +23,8 @@ public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
   PigeonIMU gyro;
   private final SwerveModule[] dt;
+  SwerveDrivePoseEstimator pose_estimator;
+  Field2d field;
   public Drivetrain() {
     gyro = new PigeonIMU(10);
     gyro.configFactoryDefault();
@@ -31,6 +37,13 @@ public class Drivetrain extends SubsystemBase {
       new SwerveModule(1, 3, Constants.dt.mod1.drive_id, Constants.dt.mod1.turn_id, Constants.dt.mod1.can_coder, Constants.dt.mod1.turn_offset)
     };
     reset_encoders();
+
+    //pose estimator to estimate where the robot is on the field using encoder and yaw data
+    pose_estimator = new SwerveDrivePoseEstimator(Constants.dt.swerve_map, get_yaw(), 
+      new SwerveModulePosition[] {this.dt[0].get_position(), this.dt[1].get_position(), this.dt[2].get_position(), this.dt[3].get_position()}, new Pose2d());
+
+    //field to visualize where pose estimator thinks robot is
+    field = new Field2d();
   }
 
   public void set_gyro(double yaw) {
@@ -46,7 +59,6 @@ public class Drivetrain extends SubsystemBase {
 
   //returns the yaw of robot
   public Rotation2d get_yaw() {
-    SmartDashboard.putNumber("Get Yaw", gyro.getYaw());
     return Rotation2d.fromDegrees(gyro.getYaw());
   }
 
@@ -65,14 +77,16 @@ public class Drivetrain extends SubsystemBase {
     for (SwerveModule module: this.dt) {
       module.set_desired_state(swerve_module_states[module.module_order]);
     }
-    //puts translation and rotation values on smart dashboard
-    SmartDashboard.putNumber("Translation x", translation.getX());
-    SmartDashboard.putNumber("Translation y", translation.getY());
-    SmartDashboard.putNumber("Rotation", rotation);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    //the order of the modules is front left front right back left then back right because that is the order the swerve map kinematics is defined in
+    pose_estimator.update(get_yaw(), new SwerveModulePosition[] {this.dt[1].get_position(), this.dt[3].get_position(), this.dt[2].get_position(), this.dt[0].get_position()});
+    //puts the robot position on the robot field and then puts the field on smartdashboard
+    field.setRobotPose(pose_estimator.getEstimatedPosition());
+    SmartDashboard.putData("Field", field);
   }
 }
