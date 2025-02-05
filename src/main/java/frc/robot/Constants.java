@@ -70,12 +70,18 @@ public final class Constants {
     public static final double max_speed = 5;
     public static final double max_angular_speed = 7.0;
 
+    //front of robot is postive x and back of robot is negative x
+    //left of robot is positive y and right of robot is negative y
+    public static final Translation2d front = new Translation2d(robot_length / 2, -robot_width / 2);
+    public static final Translation2d right = new Translation2d(-robot_length / 2, -robot_width / 2);
+    public static final Translation2d back = new Translation2d(-robot_length / 2, robot_width / 2);
+    public static final Translation2d left = new Translation2d(robot_length / 2, robot_width / 2);
     //swerve drice kinematics
     public static final SwerveDriveKinematics swerve_map = new SwerveDriveKinematics(
-      new Translation2d(robot_length / 2, robot_width / 2),
-      new Translation2d(robot_length / 2, -robot_width / 2),
-      new Translation2d(-robot_length / 2, robot_width / 2),
-      new Translation2d(-robot_length / 2, -robot_width / 2)
+      front,
+      right,
+      back,
+      left
     );
   }
 }

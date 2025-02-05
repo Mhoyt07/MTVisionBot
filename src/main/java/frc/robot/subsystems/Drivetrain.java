@@ -75,7 +75,7 @@ public class Drivetrain extends SubsystemBase {
 
     //sets the module states
     for (SwerveModule module: this.dt) {
-      module.set_desired_state(swerve_module_states[module.module_order]);
+      module.set_desired_state(swerve_module_states[module.module_number]);
     }
   }
 
@@ -84,7 +84,7 @@ public class Drivetrain extends SubsystemBase {
     // This method will be called once per scheduler run
 
     //the order of the modules is front left front right back left then back right because that is the order the swerve map kinematics is defined in
-    pose_estimator.update(get_yaw(), new SwerveModulePosition[] {this.dt[1].get_position(), this.dt[3].get_position(), this.dt[2].get_position(), this.dt[0].get_position()});
+    pose_estimator.update(get_yaw(), new SwerveModulePosition[] {this.dt[0].get_position(), this.dt[1].get_position(), this.dt[2].get_position(), this.dt[3].get_position()});
     //puts the robot position on the robot field and then puts the field on smartdashboard
     field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putData("Field", field);
