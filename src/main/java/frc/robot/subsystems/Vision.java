@@ -20,11 +20,10 @@ public class Vision extends SubsystemBase {
   NetworkTableEntry camera_pose;
   public Vision() {
     table = NetworkTableInstance.getDefault().getTable("limelight");
-    target_pose = table.getEntry("targetpose_cameraspace");
+    target_pose = table.getEntry("targetpose_robotspace");
     camera_pose = table.getEntry("camerapose_robotspace_set");
     SmartDashboard.putNumber("Yaw", 0);
     SmartDashboard.putNumber("Pitch", 0);
-
     SmartDashboard.putNumber("Roll", 0);
 
   }
