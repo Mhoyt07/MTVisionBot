@@ -6,10 +6,12 @@ package frc.robot;
 
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
+import frc.robot.commands.BargeAllign;
 import frc.robot.commands.Drive;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
+import frc.robot.subsystems.Vision;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -27,14 +29,20 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Drivetrain dt = new Drivetrain();
+  private final Vision vision = new Vision();
 
   //Joysticks
   private final Joystick l_joystick = new Joystick(0);
   private final Joystick r_joystick = new Joystick(1);
+  private final Joystick l_operator = new Joystick(2);
 
   private final JoystickButton zero_gyro_button = new JoystickButton(l_joystick, 1);
 
-  
+  //Operator Joystick L
+  //button1
+  private final JoystickButton barge_allign = new JoystickButton(l_operator, 1);
+
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the trigger bindings
@@ -54,6 +62,8 @@ public class RobotContainer {
   private void configureBindings() {
     
     zero_gyro_button.onTrue(new InstantCommand(() -> dt.set_gyro(0)));
+
+    barge_allign.whileTrue(new BargeAllign(dt, vision, l_operator));
   }
 
   /**

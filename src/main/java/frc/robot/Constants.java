@@ -51,7 +51,7 @@ public final class Constants {
     //this is how many ecoder ticks for one motor revolution
     public static final double encoder_tick_ratio = 42;
     public static final double turn_motor_ratio = 150 / 7;
-    public static final double drive_position_conversion_factor = (4 * Math.PI / (encoder_tick_ratio * drive_motor_ratio)) * 2.54 / 100; //Math.PI * drive_motor_ratio * 9.5
+    public static final double drive_position_conversion_factor = Units.feetToMeters(4 * Math.PI / (encoder_tick_ratio * drive_motor_ratio)); //Math.PI * drive_motor_ratio * 9.5
     public static final double drive_velocity_conversion_factor = drive_position_conversion_factor / 60;
     public static final double turn_position_conversion_factor = 360 / turn_motor_ratio;
 
@@ -83,5 +83,20 @@ public final class Constants {
       back_left,
       front_left
     );
+
+    public static final double rot_kp = .01111;
+    public static final double rot_ki = .00069;
+    public static final double rot_kd = 0;
+  }
+
+  public static class Vision {
+    public static class barge {
+      public static final double x = 0;
+      public static final double y = Units.feetToMeters(2);
+      public static final double z = Units.feetToMeters(2);
+      public static final double kp = 1;
+      public static final double ki = 0;
+      public static final double kd = 0;
+    }
   }
 }
