@@ -29,6 +29,7 @@ public class BargeAllign extends Command {
   double yaw;
   SlewRateLimiter x_limiter = new SlewRateLimiter(3);
   SlewRateLimiter y_limiter = new SlewRateLimiter(3);
+  SlewRateLimiter rotation_limiter = new SlewRateLimiter(3);
   Translation2d translation;
   PIDController pid = new PIDController(Constants.Vision.barge.kp, Constants.Vision.barge.ki, Constants.Vision.barge.kd);
   PIDController rot_pid = new PIDController(Constants.dt.rot_kp, Constants.dt.rot_ki, Constants.dt.rot_kd);
@@ -53,7 +54,7 @@ public class BargeAllign extends Command {
     //the z value for the april tag is pointing towards the robot, and the x value of the april tag is pointing to the right of the robot
 
     y = y_limiter.calculate(MathUtil.applyDeadband(-this.operator_l.getY(), 0.1));
-    x = -x_limiter.calculate(pid.calculate(vision.get_target_pose()[2], 1));
+    x = -x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 1), -1 ,1));
 
 
     //using yaw to set rotation value
@@ -61,13 +62,15 @@ public class BargeAllign extends Command {
     //also this will happen up utnil 90 degree away rotation, then it will start slowing down
     yaw = dt.get_yaw().getDegrees() % 360;
     SmartDashboard.putNumber("Yaw Bare", yaw);
-    rotation = -MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -90, 90) * Constants.dt.max_angular_speed / 480;
+    //spin at half of the max angular speed
+    //Clamping the max speed before multiplying by max angular velocity to be betwween -1 and 1 so that the half of max angular speed is the maximum
+    rotation = -rotation_limiter.calculate(MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -1, 1)) * Constants.dt.max_angular_speed / 2;
     SmartDashboard.putNumber("Rotation val", rotation);
-    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, 180));
+    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, (yaw >= 0) ? 180 : -180));
 
 
     //creates the translation value for the robot
-    translation = new Translation2d(x, y).times(Constants.dt.max_speed/3);
+    translation = new Translation2d(x, y).times(Constants.dt.max_speed / 3);
     //drives the robot field centric
     this.dt.drive(translation, rotation, true);
 
