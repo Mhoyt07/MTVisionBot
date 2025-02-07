@@ -31,10 +31,10 @@ public class Drivetrain extends SubsystemBase {
     set_gyro(0);
 
     this.dt = new SwerveModule[] {
-      new SwerveModule(3, 0, Constants.dt.mod3.drive_id, Constants.dt.mod3.turn_id, Constants.dt.mod3.can_coder, Constants.dt.mod3.turn_offset),
-      new SwerveModule(0, 1, Constants.dt.mod0.drive_id, Constants.dt.mod0.turn_id, Constants.dt.mod0.can_coder, Constants.dt.mod0.turn_offset),
-      new SwerveModule(2, 2, Constants.dt.mod2.drive_id, Constants.dt.mod2.turn_id, Constants.dt.mod2.can_coder, Constants.dt.mod2.turn_offset),
-      new SwerveModule(1, 3, Constants.dt.mod1.drive_id, Constants.dt.mod1.turn_id, Constants.dt.mod1.can_coder, Constants.dt.mod1.turn_offset)
+      new SwerveModule(0, Constants.dt.mod0.drive_id, Constants.dt.mod0.turn_id, Constants.dt.mod0.can_coder, Constants.dt.mod0.turn_offset),
+      new SwerveModule(1, Constants.dt.mod1.drive_id, Constants.dt.mod1.turn_id, Constants.dt.mod1.can_coder, Constants.dt.mod1.turn_offset),
+      new SwerveModule(2, Constants.dt.mod2.drive_id, Constants.dt.mod2.turn_id, Constants.dt.mod2.can_coder, Constants.dt.mod2.turn_offset),
+      new SwerveModule(3, Constants.dt.mod3.drive_id, Constants.dt.mod3.turn_id, Constants.dt.mod3.can_coder, Constants.dt.mod3.turn_offset)
     };
     reset_encoders();
 
