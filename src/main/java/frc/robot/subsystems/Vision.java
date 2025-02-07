@@ -20,6 +20,7 @@ public class Vision extends SubsystemBase {
   /** Creates a new Vision. */
   NetworkTable table;
   NetworkTableEntry target_pose;
+  NetworkTableEntry tv;
   double yaw;
   double pitch;
   double roll;
@@ -35,6 +36,7 @@ public class Vision extends SubsystemBase {
     yaw_val = vision_tab.add("Yaw", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
     pitch_val = vision_tab.add("Pitch", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
     roll_val = vision_tab.add("Roll", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
+    tv = table.getEntry("tv");
   }
 
   public double[] get_target_pose() {
@@ -43,6 +45,10 @@ public class Vision extends SubsystemBase {
 
   public void set_cam_pose(double yaw, double pitch, double roll) {
     camera_pose.setDoubleArray(new double[] {0, 0, 0, yaw, pitch, roll});
+  }
+
+  public boolean tag_in_vew() {
+    return (tv.getDouble(0) == 0 ? false : true);
   }
 
   @Override

@@ -54,8 +54,12 @@ public class BargeAllign extends Command {
     //the z value for the april tag is pointing towards the robot, and the x value of the april tag is pointing to the right of the robot
 
     y = y_limiter.calculate(MathUtil.applyDeadband(-this.operator_l.getY(), 0.1));
-    x = -x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 1), -1 ,1));
 
+    if (this.vision.tag_in_vew()) {
+      x = -x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 2), -1 ,1));
+    } else {
+      x = 0;
+    }
 
     //using yaw to set rotation value
     // the maximum speed of rotaiton is going to be half fo the max angular velocity
@@ -65,8 +69,11 @@ public class BargeAllign extends Command {
     //spin at half of the max angular speed
     //Clamping the max speed before multiplying by max angular velocity to be betwween -1 and 1 so that the half of max angular speed is the maximum
     rotation = -rotation_limiter.calculate(MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -1, 1)) * Constants.dt.max_angular_speed / 2;
+    if (Math.abs(rotation) < .01) {
+      rotation = 0;
+    }
     SmartDashboard.putNumber("Rotation val", rotation);
-    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, (yaw >= 0) ? 180 : -180));
+    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, (yaw >= 0) ? 180 : -180)* Constants.dt.max_angular_speed / 2);
 
 
     //creates the translation value for the robot
