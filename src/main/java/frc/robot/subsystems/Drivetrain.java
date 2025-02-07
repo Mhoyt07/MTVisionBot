@@ -88,5 +88,6 @@ public class Drivetrain extends SubsystemBase {
     //puts the robot position on the robot field and then puts the field on smartdashboard
     field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putData("Field", field);
+    SmartDashboard.putNumber("Gyro Yaw", get_yaw().getDegrees());
   }
 }

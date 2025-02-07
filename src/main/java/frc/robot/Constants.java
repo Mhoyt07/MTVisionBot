@@ -84,8 +84,8 @@ public final class Constants {
       front_left
     );
 
-    public static final double rot_kp = 1/90;
-    public static final double rot_ki = 0;
+    public static final double rot_kp = 1;
+    public static final double rot_ki = 1;
     public static final double rot_kd = 0;
   }
 
@@ -93,10 +93,10 @@ public final class Constants {
     public static class barge {
       public static final double x = 0;
       public static final double y = Units.feetToMeters(2);
-      public static final double z = Units.feetToMeters(1);
-      public static final double kp = 0.1;
-      public static final double ki = 0.1;
-      public static final double kd = 0.1;
+      public static final double z = Units.feetToMeters(2);
+      public static final double kp = 1;
+      public static final double ki = 0;
+      public static final double kd = 0;
     }
   }
 }

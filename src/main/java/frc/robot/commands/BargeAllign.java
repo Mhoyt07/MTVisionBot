@@ -11,6 +11,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
@@ -30,11 +31,12 @@ public class BargeAllign extends Command {
   SlewRateLimiter y_limiter = new SlewRateLimiter(3);
   Translation2d translation;
   PIDController pid = new PIDController(Constants.Vision.barge.kp, Constants.Vision.barge.ki, Constants.Vision.barge.kd);
-  PIDController rot_pid = new PIDController(Constants.dt.rot_kd, Constants.dt.rot_ki, Constants.dt.rot_kp);
+  PIDController rot_pid = new PIDController(Constants.dt.rot_kp, Constants.dt.rot_ki, Constants.dt.rot_kd);
   public BargeAllign(Drivetrain dt, Vision vision, Joystick operator_l) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.vision = vision;
     this.dt = dt;
+    this.operator_l = operator_l;
     addRequirements(this.dt, this.vision);
   }
 
@@ -51,14 +53,17 @@ public class BargeAllign extends Command {
     //the z value for the april tag is pointing towards the robot, and the x value of the april tag is pointing to the right of the robot
 
     y = y_limiter.calculate(MathUtil.applyDeadband(-this.operator_l.getY(), 0.1));
-    x = x_limiter.calculate(pid.calculate(vision.get_target_pose()[2], Units.feetToMeters(3)));
+    x = -x_limiter.calculate(pid.calculate(vision.get_target_pose()[2], 1));
 
 
     //using yaw to set rotation value
     // the maximum speed of rotaiton is going to be half fo the max angular velocity
     //also this will happen up utnil 90 degree away rotation, then it will start slowing down
-    yaw = dt.get_yaw().getDegrees();
-    rotation = MathUtil.clamp(rot_pid.calculate(yaw, 180), -90, 90) * Constants.dt.max_angular_speed / 2;
+    yaw = dt.get_yaw().getDegrees() % 360;
+    SmartDashboard.putNumber("Yaw Bare", yaw);
+    rotation = -MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -90, 90) * Constants.dt.max_angular_speed / 480;
+    SmartDashboard.putNumber("Rotation val", rotation);
+    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, 180));
 
 
     //creates the translation value for the robot

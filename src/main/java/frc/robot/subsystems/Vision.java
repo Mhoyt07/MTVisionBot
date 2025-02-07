@@ -4,9 +4,15 @@
 
 package frc.robot.subsystems;
 
+import java.util.Map;
+
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -18,14 +24,17 @@ public class Vision extends SubsystemBase {
   double pitch;
   double roll;
   NetworkTableEntry camera_pose;
+  ShuffleboardTab vision_tab = Shuffleboard.getTab("Vision");
+  GenericEntry yaw_val;
+  GenericEntry pitch_val;
+  GenericEntry roll_val;
   public Vision() {
     table = NetworkTableInstance.getDefault().getTable("limelight");
     target_pose = table.getEntry("targetpose_robotspace");
     camera_pose = table.getEntry("camerapose_robotspace_set");
-    SmartDashboard.putNumber("Yaw", 0);
-    SmartDashboard.putNumber("Pitch", 0);
-    SmartDashboard.putNumber("Roll", 0);
-
+    yaw_val = vision_tab.add("Yaw", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
+    pitch_val = vision_tab.add("Pitch", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
+    roll_val = vision_tab.add("Roll", 0).withWidget(BuiltInWidgets.kNumberSlider).withProperties(Map.of("min", -30, "max", 30)).getEntry();
   }
 
   public double[] get_target_pose() {
@@ -46,9 +55,9 @@ public class Vision extends SubsystemBase {
     SmartDashboard.putNumber("target_pose pitch", get_target_pose()[4]);
     SmartDashboard.putNumber("target_pose roll", get_target_pose()[5]);
     SmartDashboard.putBoolean("HI", false);
-    yaw = SmartDashboard.getNumber("Yaw", 0);
-    pitch = SmartDashboard.getNumber("Pitch", 0);
-    roll = SmartDashboard.getNumber("Roll", 0);
-    set_cam_pose(yaw, pitch, roll);
+    yaw = yaw_val.getDouble(0);
+    pitch = pitch_val.getDouble(0);
+    roll = roll_val.getDouble(0);
+    set_cam_pose(yaw, 60, roll);
   }
 }
