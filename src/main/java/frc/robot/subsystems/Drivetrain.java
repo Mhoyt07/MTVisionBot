@@ -5,7 +5,9 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.PigeonIMU;
+import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -18,15 +20,17 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
-  PigeonIMU gyro;
+  WPI_PigeonIMU gyro;
   private final SwerveModule[] dt;
   SwerveDrivePoseEstimator pose_estimator;
   Field2d field;
+  boolean reject_update;
   public Drivetrain() {
-    gyro = new PigeonIMU(10);
+    gyro = new WPI_PigeonIMU(10);
     gyro.configFactoryDefault();
     set_gyro(0);
 
@@ -62,6 +66,10 @@ public class Drivetrain extends SubsystemBase {
     return Rotation2d.fromDegrees(gyro.getYaw());
   }
 
+  public double get_yaw_rate() {
+    return gyro.getRate();
+  }
+
   //drive funciton
   public void drive(Translation2d translation, double rotation, boolean is_field_relative) {
     //creates swerve module states form joystick values which are in translation and rotation
@@ -86,6 +94,19 @@ public class Drivetrain extends SubsystemBase {
     //the order of the modules is front left front right back left then back right because that is the order the swerve map kinematics is defined in
     pose_estimator.update(get_yaw(), new SwerveModulePosition[] {this.dt[0].get_position(), this.dt[1].get_position(), this.dt[2].get_position(), this.dt[3].get_position()});
     //puts the robot position on the robot field and then puts the field on smartdashboard
+    LimelightHelpers.SetRobotOrientation("limelight", pose_estimator.getEstimatedPosition().getRotation().getDegrees(), 0, 0, 0, 0, 0);
+    LimelightHelpers.PoseEstimate mt2 = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2("limelight");
+    if (get_yaw_rate() > 720) {
+      reject_update = true;
+    } else if (mt2.tagCount == 0) {
+      reject_update = true;
+    } else {
+      reject_update = false;
+    } if (reject_update == false) {
+      pose_estimator.setVisionMeasurementStdDevs(VecBuilder.fill(.7,.7,9999999));
+      pose_estimator.addVisionMeasurement(mt2.pose, mt2.timestampSeconds);
+    }
+
     field.setRobotPose(pose_estimator.getEstimatedPosition());
     SmartDashboard.putData("Field", field);
     SmartDashboard.putNumber("Gyro Yaw", get_yaw().getDegrees());

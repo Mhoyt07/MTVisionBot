@@ -54,6 +54,7 @@ public class BargeAllign extends Command {
     //the z value for the april tag is pointing towards the robot, and the x value of the april tag is pointing to the right of the robot
 
     y = y_limiter.calculate(MathUtil.applyDeadband(-this.operator_l.getY(), 0.1));
+    //robot starts slowing down from mad speed when it is 1 meter away from the goal positio
     x = -x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 1), -1 ,1));
 
 
@@ -70,6 +71,7 @@ public class BargeAllign extends Command {
 
 
     //creates the translation value for the robot
+    //the max speed of the robot is 1/3 of its normal max speed
     translation = new Translation2d(x, y).times(Constants.dt.max_speed / 3);
     //drives the robot field centric
     this.dt.drive(translation, rotation, true);
