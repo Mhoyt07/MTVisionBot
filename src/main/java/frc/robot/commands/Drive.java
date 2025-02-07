@@ -20,8 +20,8 @@ public class Drive extends Command {
   Joystick joystick_r;
   Translation2d translation;
   double rotation;
-  double x;
-  double y;
+  double dt_x;
+  double dt_y;
   SlewRateLimiter x_limiter = new SlewRateLimiter(3);
   SlewRateLimiter y_limiter = new SlewRateLimiter(3);
   SlewRateLimiter rotation_limiter = new SlewRateLimiter(3);
@@ -43,13 +43,13 @@ public class Drive extends Command {
   public void execute() {
     //slew rate limiter slows how fast the values change; it takes 1/3 of a second to go from 0 to 1
     //the deadband makes it so if joystick is between -0.1 and 0.1 it will just return 0
-    x = x_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getX(), 0.1));
-    y = -y_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getY(), 0.1));
+    dt_x = -x_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getY(), 0.1));
+    dt_y = -y_limiter.calculate(MathUtil.applyDeadband(this.joystick_l.getX(), 0.1));
     //turns the rotation from a magnitude of 0 to 1 to be in correct speed range using the multiplication
     rotation = rotation_limiter.calculate(MathUtil.applyDeadband(this.joystick_r.getX(), 0.1)) * Constants.dt.max_angular_speed;
     //gets robot translation and rotation from joysticks
     //.times multiplies the translation which has a magnitude between 0 and 1 inclusive by the max speed of the robot
-    translation = new Translation2d(x, y).times(Constants.dt.max_speed); 
+    translation = new Translation2d(dt_x, dt_y).times(Constants.dt.max_speed); 
 
     //sets the module speeds and positions using the joystick values
     this.dt.drive(translation, rotation, true);

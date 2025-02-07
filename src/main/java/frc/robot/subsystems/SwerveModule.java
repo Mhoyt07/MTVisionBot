@@ -26,7 +26,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 /** Add your docs here. */
 public class SwerveModule {
     public final int module_number;
-    public int module_order;
     private final Rotation2d turn_offset;
     private final SparkMax drive_motor;
     private final SparkMax turn_motor;
@@ -45,9 +44,8 @@ public class SwerveModule {
     private double turn_speed;
     private double drive_speed;
 
-    public SwerveModule(int module_number, int module_order, int drive_motor_id, int turn_motor_id, int can_coder_id, Rotation2d turn_offset) {
+    public SwerveModule(int module_number, int drive_motor_id, int turn_motor_id, int can_coder_id, Rotation2d turn_offset) {
         this.module_number = module_number;
-        this.module_order = module_order;
         this.turn_offset = turn_offset;
 
 
@@ -134,7 +132,7 @@ public class SwerveModule {
 
     //returns the current position of the module
     public SwerveModulePosition get_position() {
-        return new SwerveModulePosition(this.drive_encoder.getPosition(), new Rotation2d(this.turn_encoder.getPosition()));
+        return new SwerveModulePosition(this.drive_encoder.getPosition(), Rotation2d.fromDegrees(get_can_coder().getDegrees() % 360));
     }
 
     //sets the swerve modules into their desired states using speed and angles
