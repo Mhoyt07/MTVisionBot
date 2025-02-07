@@ -69,7 +69,7 @@ public class BargeAllign extends Command {
     //spin at half of the max angular speed
     //Clamping the max speed before multiplying by max angular velocity to be betwween -1 and 1 so that the half of max angular speed is the maximum
     rotation = -rotation_limiter.calculate(MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -1, 1)) * Constants.dt.max_angular_speed / 2;
-    if (Math.abs(rotation) < .01) {
+    if (Math.abs(rotation) < .015) {
       rotation = 0;
     }
     SmartDashboard.putNumber("Rotation val", rotation);
