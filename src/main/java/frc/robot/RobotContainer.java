@@ -11,7 +11,7 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.ExampleCommand;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.ExampleSubsystem;
-import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Vision_Sub;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -29,7 +29,7 @@ public class RobotContainer {
   // The robot's subsystems and commands are defined here...
   private final ExampleSubsystem m_exampleSubsystem = new ExampleSubsystem();
   private final Drivetrain dt = new Drivetrain();
-  private final Vision vision = new Vision();
+  private final Vision_Sub vision = new Vision_Sub();
 
   //Joysticks
   private final Joystick l_joystick = new Joystick(0);
@@ -38,9 +38,9 @@ public class RobotContainer {
 
   private final JoystickButton zero_gyro_button = new JoystickButton(l_joystick, 1);
 
-  //Operator Joystick L
+  //r joysticik
   //button1
-  private final JoystickButton barge_allign = new JoystickButton(l_operator, 1);
+  private final JoystickButton barge_allign = new JoystickButton(r_joystick, 1);
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -63,7 +63,7 @@ public class RobotContainer {
     
     zero_gyro_button.onTrue(new InstantCommand(() -> dt.set_gyro(0)));
 
-    barge_allign.whileTrue(new BargeAllign(dt, vision, l_operator));
+    barge_allign.whileTrue(new BargeAllign(dt, vision, r_joystick));
   }
 
   /**

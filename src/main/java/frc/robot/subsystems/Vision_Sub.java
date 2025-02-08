@@ -10,13 +10,12 @@ import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class Vision extends SubsystemBase {
+public class Vision_Sub extends SubsystemBase {
   /** Creates a new Vision. */
   NetworkTable table;
   NetworkTableEntry target_pose;
@@ -25,16 +24,18 @@ public class Vision extends SubsystemBase {
   double pitch;
   double roll;
   NetworkTableEntry camera_pose;
-  ShuffleboardTab vision_tab = Shuffleboard.getTab("Vision");
-  GenericEntry yaw_val;
-  GenericEntry pitch_val;
-  GenericEntry roll_val;
-  public Vision() {
+  NetworkTableEntry camera_pose_tr;
+  ShuffleboardTab vision_tab;
+  GenericEntry z;
+  public Vision_Sub() {
     table = NetworkTableInstance.getDefault().getTable("limelight");
     target_pose = table.getEntry("targetpose_robotspace");
     camera_pose = table.getEntry("camerapose_robotspace_set");
+    camera_pose_tr = table.getEntry("camerapose_targetspace");
     tv = table.getEntry("tv");
-    set_cam_pose(0, 60, 0);
+    vision_tab = Shuffleboard.getTab("Vision");
+    set_cam_pose(0, 56, 0);
+    z = vision_tab.add("Z offset", get_target_pose()[2]).getEntry();
   }
 
   public double[] get_target_pose() {
@@ -49,8 +50,20 @@ public class Vision extends SubsystemBase {
     return (tv.getDouble(0) == 0 ? false : true);
   }
 
+  public double[] get_cam_pose() {
+    return camera_pose_tr.getDoubleArray(new double[6]);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+    SmartDashboard.putNumber("x", get_cam_pose()[0]);
+    SmartDashboard.putNumber("y", get_cam_pose()[1]);
+    SmartDashboard.putNumber("z", get_cam_pose()[2]);
+    SmartDashboard.putNumber("pitch", get_cam_pose()[3]);
+    SmartDashboard.putNumber("yaw", get_cam_pose()[4]);
+    SmartDashboard.putNumber("roll", get_cam_pose()[5]);
+    set_cam_pose(0, 56, 0);
+    SmartDashboard.putNumber("Z offset", get_target_pose()[2]);
   }
 }

@@ -85,7 +85,7 @@ public final class Constants {
     );
 
     public static final double rot_kp = .01111;
-    public static final double rot_ki = 0.0001;
+    public static final double rot_ki = 0.00001;
     public static final double rot_kd = 0;
   }
 
@@ -95,7 +95,7 @@ public final class Constants {
       public static final double y = Units.feetToMeters(2);
       public static final double z = Units.feetToMeters(2);
       public static final double kp = 1;
-      public static final double ki = 0;
+      public static final double ki = .000001;
       public static final double kd = 0;
     }
   }

@@ -4,23 +4,29 @@
 
 package frc.robot.commands;
 
+import java.util.Map;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants;
 import frc.robot.subsystems.Drivetrain;
-import frc.robot.subsystems.Vision;
+import frc.robot.subsystems.Vision_Sub;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class BargeAllign extends Command {
   /** Creates a new BargeAllign. */
-  Vision vision;
+  Vision_Sub vision;
   Drivetrain dt;
   Joystick operator_l;
   double dt_x;
@@ -33,7 +39,12 @@ public class BargeAllign extends Command {
   Translation2d translation;
   PIDController pid = new PIDController(Constants.Vision.barge.kp, Constants.Vision.barge.ki, Constants.Vision.barge.kd);
   PIDController rot_pid = new PIDController(Constants.dt.rot_kp, Constants.dt.rot_ki, Constants.dt.rot_kd);
-  public BargeAllign(Drivetrain dt, Vision vision, Joystick operator_l) {
+   GenericEntry example = Shuffleboard.getTab("My Tab")
+   .add("My Number", 0)
+   .withWidget(BuiltInWidgets.kPIDController)
+   .withProperties(Map.of("min", 0, "max", 1))
+   .getEntry();
+  public BargeAllign(Drivetrain dt, Vision_Sub vision, Joystick operator_l) {
     // Use addRequirements() here to declare subsystem dependencies.
     this.vision = vision;
     this.dt = dt;
@@ -56,7 +67,7 @@ public class BargeAllign extends Command {
     dt_x = -y_limiter.calculate(MathUtil.applyDeadband(this.operator_l.getY(), 0.1));
 
     if (this.vision.tag_in_vew()) {
-      dt_y = x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 2), -1 ,1));
+      dt_y = x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 1.5), -1 ,1));
     } else {
       dt_y = 0;
     }
@@ -73,11 +84,11 @@ public class BargeAllign extends Command {
       rotation = 0;
     }
     SmartDashboard.putNumber("Rotation val", rotation);
-    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, (yaw >= 0) ? 180 : -180)* Constants.dt.max_angular_speed / 2);
+    SmartDashboard.putNumber("rot pid", rot_pid.calculate(yaw, (yaw >= 90) ? 90 : -270)* Constants.dt.max_angular_speed / 2);
 
 
     //creates the translation value for the robot
-    translation = new Translation2d(dt_x, dt_y).times(Constants.dt.max_speed / 3);
+    translation = new Translation2d(dt_x, dt_y).times(Constants.dt.max_speed);
     //drives the robot field centric
     this.dt.drive(translation, rotation, true);
 
