@@ -23,8 +23,8 @@ public class BargeAllign extends Command {
   Vision vision;
   Drivetrain dt;
   Joystick operator_l;
-  double x;
-  double y;
+  double dt_x;
+  double dt_y;
   double rotation;
   double yaw;
   SlewRateLimiter x_limiter = new SlewRateLimiter(3);
@@ -53,12 +53,12 @@ public class BargeAllign extends Command {
     //camera is on the side of the robot
     //the z value for the april tag is pointing towards the robot, and the x value of the april tag is pointing to the right of the robot
 
-    y = y_limiter.calculate(MathUtil.applyDeadband(-this.operator_l.getY(), 0.1));
+    dt_x = -y_limiter.calculate(MathUtil.applyDeadband(this.operator_l.getY(), 0.1));
 
     if (this.vision.tag_in_vew()) {
-      x = -x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 2), -1 ,1));
+      dt_y = x_limiter.calculate(MathUtil.clamp(pid.calculate(vision.get_target_pose()[2], 2), -1 ,1));
     } else {
-      x = 0;
+      dt_y = 0;
     }
 
     //using yaw to set rotation value
@@ -68,7 +68,7 @@ public class BargeAllign extends Command {
     SmartDashboard.putNumber("Yaw Bare", yaw);
     //spin at half of the max angular speed
     //Clamping the max speed before multiplying by max angular velocity to be betwween -1 and 1 so that the half of max angular speed is the maximum
-    rotation = -rotation_limiter.calculate(MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= 0) ? 180 : -180), -1, 1)) * Constants.dt.max_angular_speed / 2;
+    rotation = -rotation_limiter.calculate(MathUtil.clamp(rot_pid.calculate(yaw,(yaw >= -90) ? 90 : -270), -1, 1)) * Constants.dt.max_angular_speed / 2;
     if (Math.abs(rotation) < .015) {
       rotation = 0;
     }
@@ -77,7 +77,7 @@ public class BargeAllign extends Command {
 
 
     //creates the translation value for the robot
-    translation = new Translation2d(x, y).times(Constants.dt.max_speed / 3);
+    translation = new Translation2d(dt_x, dt_y).times(Constants.dt.max_speed / 3);
     //drives the robot field centric
     this.dt.drive(translation, rotation, true);
 

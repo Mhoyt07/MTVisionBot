@@ -85,7 +85,7 @@ public final class Constants {
     );
 
     public static final double rot_kp = .01111;
-    public static final double rot_ki = .00069;
+    public static final double rot_ki = 0.0001;
     public static final double rot_kd = 0;
   }
 
