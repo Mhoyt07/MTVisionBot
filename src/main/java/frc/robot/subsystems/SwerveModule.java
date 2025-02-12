@@ -132,7 +132,7 @@ public class SwerveModule {
 
     //returns the current position of the module
     public SwerveModulePosition get_position() {
-        return new SwerveModulePosition(this.drive_encoder.getPosition(), Rotation2d.fromDegrees(get_can_coder().getDegrees() % 360));
+        return new SwerveModulePosition(this.drive_encoder.getPosition(), Rotation2d.fromDegrees(get_can_coder().minus(this.turn_offset).getDegrees()));
     }
 
     //sets the swerve modules into their desired states using speed and angles
