@@ -47,13 +47,19 @@ public final class Constants {
       public static final Rotation2d turn_offset = Rotation2d.fromDegrees(148.2);
     }
 
+    //this is the drive motor gear ratio, basically 6 rotation of the motor will rotation the drivec motor once
     public static final double drive_motor_ratio = 6.12;
     //this is how many ecoder ticks for one motor revolution
     public static final double encoder_tick_ratio = 42;
-    public static final double turn_motor_ratio = 150 / 7;
-    public static final double drive_position_conversion_factor = Units.feetToMeters(4 * Math.PI / (encoder_tick_ratio * drive_motor_ratio)); //Math.PI * drive_motor_ratio * 9.5
-    public static final double drive_velocity_conversion_factor = drive_position_conversion_factor / 60;
-    public static final double turn_position_conversion_factor = 360 / turn_motor_ratio;
+    //this is the diameter of the drive wheel in meters, the number put in is in inches
+    public static final double wheel_diameter = Units.inchesToMeters(4);
+    //this is the gear ratio of the turn motor, it takes 150 revolutions of the turn motor to rotate the wheel 7 times
+    public static final double turn_motor_ratio = 150.0 / 7.0;
+    //this uses the constants of the module to create a drive position vonversion factor.
+    //The goal is to have the encoder read in meters not ticks
+    public static final double drive_position_conversion_factor = wheel_diameter * Math.PI / (encoder_tick_ratio * drive_motor_ratio); //Math.PI * drive_motor_ratio * 9.5
+    public static final double drive_velocity_conversion_factor = drive_position_conversion_factor / 60.0;
+    public static final double turn_position_conversion_factor = 360.0 / turn_motor_ratio;
 
     //lengths in nches to meters
     public static final double robot_length = Units.inchesToMeters(25);
